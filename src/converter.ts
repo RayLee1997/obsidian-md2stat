@@ -101,15 +101,24 @@ export class MPConverter {
      * @param container 包含 Mermaid 的容器
      */
     private static async processMermaidDiagrams(container: HTMLElement): Promise<void> {
-        // 查找所有 Mermaid 节点
+        // 查找所有 Mermaid 节点（可能是 .mermaid 或带有 mermaid 代码块的元素）
         const mermaidNodes = container.querySelectorAll('.mermaid');
 
         if (mermaidNodes.length === 0) return;
 
+        // 等待 Mermaid 渲染完成（检查 SVG 是否存在）
+        await this.waitForMermaidRender(mermaidNodes);
+
         // 并发处理所有 Mermaid 节点
         const conversions = Array.from(mermaidNodes).map(async (mermaidEl) => {
             try {
-                await this.convertMermaidToImage(mermaidEl as HTMLElement);
+                // 确保元素内有 SVG 再转换
+                const svg = mermaidEl.querySelector('svg');
+                if (svg) {
+                    await this.convertMermaidToImage(mermaidEl as HTMLElement);
+                } else {
+                    console.warn('Mermaid 节点无 SVG 内容，跳过转换');
+                }
             } catch (error) {
                 console.error('Mermaid 转换失败:', error);
                 // 转换失败时保留原 SVG，但添加警告标记
@@ -118,6 +127,48 @@ export class MPConverter {
         });
 
         await Promise.all(conversions);
+    }
+
+    /**
+     * 等待 Mermaid 渲染完成
+     * Obsidian 的 Mermaid 渲染是异步的，需要等待 SVG 元素出现
+     * @param mermaidNodes Mermaid 节点列表
+     * @param maxWait 最大等待时间（毫秒）
+     */
+    private static async waitForMermaidRender(
+        mermaidNodes: NodeListOf<Element>,
+        maxWait: number = 3000
+    ): Promise<void> {
+        const startTime = Date.now();
+        const checkInterval = 100; // 每 100ms 检查一次
+
+        return new Promise((resolve) => {
+            const checkSvg = () => {
+                // 检查所有 mermaid 节点是否都有 SVG
+                const allRendered = Array.from(mermaidNodes).every(node => {
+                    const svg = node.querySelector('svg');
+                    return svg && svg.innerHTML.trim().length > 0;
+                });
+
+                if (allRendered) {
+                    // 额外等待一小段时间确保样式计算完成
+                    setTimeout(resolve, 50);
+                    return;
+                }
+
+                // 超时检查
+                if (Date.now() - startTime >= maxWait) {
+                    console.warn('Mermaid 渲染超时，使用当前状态继续');
+                    resolve();
+                    return;
+                }
+
+                // 继续等待
+                setTimeout(checkSvg, checkInterval);
+            };
+
+            checkSvg();
+        });
     }
 
     /**
