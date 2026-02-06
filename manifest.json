@@ -1,7 +1,7 @@
 {
     "id": "obsidian-md2stat",
     "name": "Markdown to Stat",
-    "version": "1.0.6",
+    "version": "2.0.0",
     "minAppVersion": "0.15.0",
     "description": "Convert Markdown files to WeChat Official Accounts format with statistics",
     "author": "Ray",
