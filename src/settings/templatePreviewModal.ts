@@ -24,7 +24,7 @@ export class TemplatePreviewModal extends Modal {
         const content = container.createDiv('tp-mp-content-section');
 
         // 标题样式
-        content.createEl('h2', { text: '探索 Obsidian MD to Stat 插件的无限可能' });
+        content.createEl('h2', { text: '探索 Markdown to Stat 插件的无限可能' });
         content.createEl('h3', { text: '探索我的插件，让您的笔记发布变得更加轻松！' });
 
         // 段落样式
@@ -57,7 +57,7 @@ export class TemplatePreviewModal extends Modal {
             header.appendChild(dot);
         }
         codeBlock.insertBefore(header, codeBlock.firstChild);
-        codeBlock.createEl('code', { text: 'console.log("欢迎使用 Obsidian MD to Stat 插件！");' });
+        codeBlock.createEl('code', { text: 'console.log("欢迎使用 Markdown to Stat 插件！");' });
 
 
         // 分隔线样式

@@ -1,4 +1,4 @@
-# Obsidian MD to Stat
+# Markdown to Stat
 
 一键将 Obsidian 笔记转换为微信公众号格式的插件。
 
@@ -33,7 +33,7 @@
 2. 转到第三方插件设置
 3. 关闭安全模式
 4. 点击浏览社区插件
-5. 搜索 "Obsidian MD to Stat"
+5. 搜索 "Markdown to Stat"
 6. 点击安装并启用插件
 
 ### 手动安装
