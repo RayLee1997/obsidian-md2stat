@@ -20,12 +20,12 @@ export class TemplatePreviewModal extends Modal {
         contentEl.createEl('h2', { text: `模板预览: ${this.template.name}`, cls: 'mp-template-title' });
 
         // 添加预览区域
-        const container = contentEl.createDiv('tp-mp-preview-area');
+        const container = contentEl.createDiv('tp-obsidian-md2stat-area');
         const content = container.createDiv('tp-mp-content-section');
 
         // 标题样式
-        content.createEl('h2', { text: '探索夜半插件的无限可能'});
-        content.createEl('h3', { text: '探索我的插件，让您的笔记发布变得更加轻松！'});
+        content.createEl('h2', { text: '探索 Obsidian MD to Stat 插件的无限可能' });
+        content.createEl('h3', { text: '探索我的插件，让您的笔记发布变得更加轻松！' });
 
         // 段落样式
         const paragraph1 = content.createEl('p');
@@ -57,10 +57,8 @@ export class TemplatePreviewModal extends Modal {
             header.appendChild(dot);
         }
         codeBlock.insertBefore(header, codeBlock.firstChild);
-        codeBlock.createEl('code', { text: 'console.log("欢迎使用夜半插件！");' });
+        codeBlock.createEl('code', { text: 'console.log("欢迎使用 Obsidian MD to Stat 插件！");' });
 
-        // 添加打赏引导文案
-        content.createEl('strong', { text: '如果您觉得我的插件对您有帮助，请打赏支持我。'});
 
         // 分隔线样式
         content.createEl('hr');

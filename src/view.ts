@@ -1,11 +1,11 @@
 import { ItemView, WorkspaceLeaf, MarkdownRenderer, TFile, setIcon } from 'obsidian';
 import { MPConverter } from './converter';
 import { CopyManager } from './copyManager';
+import { ExportManager } from './exportManager';
 import type { TemplateManager } from './templateManager';
-import { DonateManager } from './donateManager';
 import type { SettingsManager } from './settings/settings';
 import { BackgroundManager } from './backgroundManager';
-export const VIEW_TYPE_MP = 'mp-preview';
+export const VIEW_TYPE_MP = 'obsidian-md2stat';
 
 export class MPView extends ItemView {
     private previewEl: HTMLElement;
@@ -23,7 +23,7 @@ export class MPView extends ItemView {
     private customBackgroundSelect: HTMLElement;
 
     constructor(
-        leaf: WorkspaceLeaf, 
+        leaf: WorkspaceLeaf,
         templateManager: TemplateManager,
         settingsManager: SettingsManager
     ) {
@@ -42,7 +42,7 @@ export class MPView extends ItemView {
     }
 
     getIcon() {
-       return 'eye';
+        return 'eye';
     }
 
     async onOpen() {
@@ -50,11 +50,11 @@ export class MPView extends ItemView {
         container.empty();
         container.classList.remove('view-content');
         container.classList.add('mp-view-content');
-        
+
         // 顶部工具栏
         const toolbar = container.createEl('div', { cls: 'mp-toolbar' });
         const controlsGroup = toolbar.createEl('div', { cls: 'mp-controls-group' });
-        
+
         // 锁定按钮
         this.lockButton = controlsGroup.createEl('button', {
             cls: 'mp-lock-button',
@@ -63,9 +63,9 @@ export class MPView extends ItemView {
         setIcon(this.lockButton, 'lock');
         this.lockButton.setAttribute('aria-label', '开启实时预览状态');
         this.lockButton.addEventListener('click', () => this.togglePreviewLock());
-    
 
-        
+
+
         // 添加背景选择器
         const backgroundOptions = [
             { value: '', label: '无背景' },
@@ -74,13 +74,13 @@ export class MPView extends ItemView {
                 label: bg.name
             })) || [])
         ];
-        
+
         this.customBackgroundSelect = this.createCustomSelect(
             controlsGroup,
             'mp-background-select',
             backgroundOptions
         );
-        
+
         // 添加背景选择器的事件监听
         this.customBackgroundSelect.querySelector('.custom-select')?.addEventListener('change', async (e: any) => {
             const value = e.detail.value;
@@ -90,7 +90,7 @@ export class MPView extends ItemView {
             });
             this.backgroundManager.applyBackground(this.previewEl);
         });
-        
+
         // 创建自定义下拉选择器
         this.customTemplateSelect = this.createCustomSelect(
             controlsGroup,
@@ -98,7 +98,7 @@ export class MPView extends ItemView {
             await this.getTemplateOptions()
         );
         this.customTemplateSelect.id = 'template-select';
-        
+
         // 添加模板选择器的 change 事件监听
         this.customTemplateSelect.querySelector('.custom-select')?.addEventListener('change', async (e: any) => {
             const value = e.detail.value;
@@ -108,7 +108,7 @@ export class MPView extends ItemView {
             });
             this.templateManager.applyTemplate(this.previewEl);
         });
-    
+
         this.customFontSelect = this.createCustomSelect(
             controlsGroup,
             'mp-font-select',
@@ -128,11 +128,11 @@ export class MPView extends ItemView {
 
         // 字号调整
         const fontSizeGroup = controlsGroup.createEl('div', { cls: 'mp-font-size-group' });
-        const decreaseButton = fontSizeGroup.createEl('button', { 
+        const decreaseButton = fontSizeGroup.createEl('button', {
             cls: 'mp-font-size-btn',
             text: '-'
         });
-        this.fontSizeSelect = fontSizeGroup.createEl('input', { 
+        this.fontSizeSelect = fontSizeGroup.createEl('input', {
             cls: 'mp-font-size-input',
             type: 'text',
             value: '16',
@@ -140,14 +140,14 @@ export class MPView extends ItemView {
                 style: 'border: none; outline: none; background: transparent;'
             }
         });
-        const increaseButton = fontSizeGroup.createEl('button', { 
+        const increaseButton = fontSizeGroup.createEl('button', {
             cls: 'mp-font-size-btn',
             text: '+'
         });
 
         // 从设置中恢复上次的选择
         const settings = this.settingsManager.getSettings();
-        
+
         // 恢复背景设置
         if (settings.backgroundId) {
             const backgroundSelect = this.customBackgroundSelect.querySelector('.selected-text');
@@ -246,7 +246,7 @@ export class MPView extends ItemView {
 
         this.fontSizeSelect.addEventListener('change', updateFontSize);
         // 预览区域
-        this.previewEl = container.createEl('div', { cls: 'mp-preview-area' });
+        this.previewEl = container.createEl('div', { cls: 'obsidian-md2stat-area' });
 
         // 底部工具栏
         const bottomBar = container.createEl('div', { cls: 'mp-bottom-bar' });
@@ -266,35 +266,41 @@ export class MPView extends ItemView {
                 2. 调整字体和字号
                 3. 实时预览效果
                 4. 点击【复制按钮】即可粘贴到公众号
-                5. 编辑实时查看效果，点🔓关闭实时刷新
-                6. 如果你喜欢这个插件，欢迎关注打赏`
+                5. 编辑实时查看效果，点🔓关闭实时刷新`
         });
 
-        
-        
-        // 关于作者按钮
-        const likeButton = bottomControlsGroup.createEl('button', { 
-            cls: 'mp-like-button'
+
+
+        // 导出按钮
+        const exportButton = bottomControlsGroup.createEl('button', {
+            text: '导出图片',
+            cls: 'mp-export-button'
         });
-        const heartSpan = likeButton.createEl('span', {
-            text: '❤️',
-            attr: { style: 'margin-right: 4px' }
-        });
-        likeButton.createSpan({ text: '关于作者' });
-        
-        likeButton.addEventListener('click', () => {
-            DonateManager.showDonateModal(this.containerEl);
+
+        exportButton.addEventListener('click', async () => {
+            if (this.previewEl) {
+                exportButton.disabled = true;
+                exportButton.setText('导出中...');
+
+                try {
+                    await ExportManager.exportToPng(this.previewEl);
+                    exportButton.setText('导出成功');
+
+                    setTimeout(() => {
+                        exportButton.disabled = false;
+                        exportButton.setText('导出图片');
+                    }, 2000);
+                } catch (error) {
+                    exportButton.disabled = false;
+                    exportButton.setText('导出图片');
+                }
+            }
         });
 
         // 复制按钮
-        this.copyButton = bottomControlsGroup.createEl('button', { 
+        this.copyButton = bottomControlsGroup.createEl('button', {
             text: '复制到公众号',
             cls: 'mp-copy-button'
-        });
-        //新功能按钮
-        const newButton = bottomControlsGroup.createEl('button', { 
-            text: '敬请期待',
-            cls: 'mp-new-button'
         });
 
         // 添加复制按钮点击事件
@@ -302,11 +308,11 @@ export class MPView extends ItemView {
             if (this.previewEl) {
                 this.copyButton.disabled = true;
                 this.copyButton.setText('复制中...');
-                
+
                 try {
                     await CopyManager.copyToClipboard(this.previewEl);
                     this.copyButton.setText('复制成功');
-                    
+
                     setTimeout(() => {
                         this.copyButton.disabled = false;
                         this.copyButton.setText('复制为公众号格式');
@@ -342,17 +348,17 @@ export class MPView extends ItemView {
         const templateSelect = this.customTemplateSelect.querySelector('.custom-select');
         const fontSelect = this.customFontSelect.querySelector('.custom-select');
         const backgroundSelect = this.customBackgroundSelect.querySelector('.custom-select');
-        
+
         [templateSelect, fontSelect, backgroundSelect].forEach(select => {
             if (select) {
                 select.classList.toggle('disabled', !enabled);
                 select.setAttribute('style', `pointer-events: ${enabled ? 'auto' : 'none'}`);
             }
         });
-        
+
         this.fontSizeSelect.disabled = !enabled;
         this.copyButton.disabled = !enabled;
-        
+
         // 字号调节按钮的状态控制
         const fontSizeButtons = this.containerEl.querySelectorAll('.mp-font-size-btn');
         fontSizeButtons.forEach(button => {
@@ -384,7 +390,7 @@ export class MPView extends ItemView {
         const lockStatus = this.isPreviewLocked ? '开启实时预览状态' : '关闭实时预览状态';
         setIcon(this.lockButton, lockIcon);
         this.lockButton.setAttribute('aria-label', lockStatus);
-        
+
         if (!this.isPreviewLocked) {
             await this.updatePreview();
         }
@@ -395,7 +401,7 @@ export class MPView extends ItemView {
             if (this.updateTimer) {
                 clearTimeout(this.updateTimer);
             }
-            
+
             this.updateTimer = setTimeout(() => {
                 this.updatePreview();
             }, 500);
@@ -412,7 +418,7 @@ export class MPView extends ItemView {
 
         this.previewEl.empty();
         const content = await this.app.vault.cachedRead(this.currentFile);
-        
+
         await MarkdownRenderer.render(
             this.app,
             content,
@@ -421,7 +427,7 @@ export class MPView extends ItemView {
             this
         );
 
-        MPConverter.formatContent(this.previewEl);
+        await MPConverter.formatContent(this.previewEl);
         this.templateManager.applyTemplate(this.previewEl);
         this.backgroundManager.applyBackground(this.previewEl);
 
@@ -448,19 +454,19 @@ export class MPView extends ItemView {
         const select = container.createEl('div', { cls: 'custom-select' });
         const selectedText = select.createEl('span', { cls: 'selected-text' });
         const arrow = select.createEl('span', { cls: 'select-arrow', text: '▾' });
-        
+
         const dropdown = container.createEl('div', { cls: 'select-dropdown' });
-        
+
         options.forEach(option => {
             const item = dropdown.createEl('div', {
                 cls: 'select-item',
                 text: option.label
             });
-            
+
             item.dataset.value = option.value;
             item.addEventListener('click', () => {
                 // 移除其他项的选中状态
-                dropdown.querySelectorAll('.select-item').forEach(el => 
+                dropdown.querySelectorAll('.select-item').forEach(el =>
                     el.classList.remove('selected'));
                 // 添加当前项的选中状态
                 item.classList.add('selected');
@@ -472,25 +478,25 @@ export class MPView extends ItemView {
                 }));
             });
         });
-        
+
         // 设置默认值和选中状态
         if (options.length > 0) {
             selectedText.textContent = options[0].label;
             select.dataset.value = options[0].value;
             dropdown.querySelector('.select-item')?.classList.add('selected');
         }
-        
+
         // 点击显示/隐藏下拉列表
         select.addEventListener('click', (e) => {
             e.stopPropagation();
             dropdown.classList.toggle('show');
         });
-        
+
         // 点击其他地方关闭下拉列表
         document.addEventListener('click', () => {
             dropdown.classList.remove('show');
         });
-        
+
         return container;
     }
 
@@ -498,7 +504,7 @@ export class MPView extends ItemView {
     private async getTemplateOptions() {
 
         const templates = this.settingsManager.getVisibleTemplates();
-        
+
         return templates.length > 0
             ? templates.map(t => ({ value: t.id, label: t.name }))
             : [{ value: 'default', label: '默认模板' }];

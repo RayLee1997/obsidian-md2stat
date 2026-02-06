@@ -3,7 +3,6 @@ import { MPView, VIEW_TYPE_MP } from './view';
 import { TemplateManager } from './templateManager';
 import { SettingsManager } from './settings/settings';
 import { MPConverter } from './converter';
-import { DonateManager } from './donateManager';
 import { MPSettingTab } from './settings/MPSettingTab';
 export default class MPPlugin extends Plugin {
   settingsManager: SettingsManager;
@@ -18,8 +17,6 @@ export default class MPPlugin extends Plugin {
 
     // 初始化转换器
     MPConverter.initialize(this.app);
-
-    DonateManager.initialize(this.app, this);
 
     // 注册视图
     this.registerView(
@@ -48,11 +45,11 @@ export default class MPPlugin extends Plugin {
 
     // 添加命令到命令面板
     this.addCommand({
-            id: 'open-mp-preview',
-            name: '打开公众号预览插件',
+      id: 'open-obsidian-md2stat',
+      name: '打开公众号预览插件',
       callback: async () => {
         await this.activateView();
-            }
+      }
     });
 
     // 在插件的 onload 方法中添加：
@@ -76,7 +73,7 @@ export default class MPPlugin extends Plugin {
       });
     } else {
       // 如果无法获取右侧面板，显示错误提示
-            new Notice('无法创建视图面板');
+      new Notice('无法创建视图面板');
     }
   }
 }
