@@ -98,7 +98,8 @@ export class MPView extends ItemView {
             await this.settingsManager.updateSettings({
                 templateId: value
             });
-            this.templateManager.applyTemplate(this.previewEl);
+            // 重新渲染预览以确保 Mermaid 等元素正确处理
+            await this.updatePreview();
         });
 
         this.customFontSelect = this.createCustomSelect(
@@ -114,7 +115,8 @@ export class MPView extends ItemView {
             await this.settingsManager.updateSettings({
                 fontFamily: value
             });
-            this.templateManager.applyTemplate(this.previewEl);
+            // 重新渲染预览
+            await this.updatePreview();
         });
         this.customFontSelect.id = 'font-select';
 
@@ -216,7 +218,8 @@ export class MPView extends ItemView {
             await this.settingsManager.updateSettings({
                 fontSize: size
             });
-            this.templateManager.applyTemplate(this.previewEl);
+            // 重新渲染预览
+            await this.updatePreview();
         };
 
         // 字号调整按钮事件

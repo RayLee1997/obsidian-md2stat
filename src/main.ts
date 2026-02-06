@@ -39,14 +39,14 @@ export default class MPPlugin extends Plugin {
     // });
 
     // 添加一个功能按钮用于打开所有面板
-    this.addRibbonIcon("eye", "打开公众号预览", () => {
+    this.addRibbonIcon("eye", "Markdown to Stat", () => {
       this.activateView();
     });
 
     // 添加命令到命令面板
     this.addCommand({
       id: 'open-obsidian-md2stat',
-      name: '打开公众号预览插件',
+      name: 'Markdown to Stat',
       callback: async () => {
         await this.activateView();
       }
