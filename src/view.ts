@@ -11,8 +11,7 @@ export class MPView extends ItemView {
     private previewEl: HTMLElement;
     private currentFile: TFile | null = null;
     private updateTimer: NodeJS.Timeout | null = null;
-    private isPreviewLocked: boolean = false;
-    private lockButton: HTMLButtonElement;
+
     private copyButton: HTMLButtonElement;
     private templateManager: TemplateManager;
     private settingsManager: SettingsManager;
@@ -55,14 +54,7 @@ export class MPView extends ItemView {
         const toolbar = container.createEl('div', { cls: 'mp-toolbar' });
         const controlsGroup = toolbar.createEl('div', { cls: 'mp-controls-group' });
 
-        // 锁定按钮
-        this.lockButton = controlsGroup.createEl('button', {
-            cls: 'mp-lock-button',
-            attr: { 'aria-label': '关闭实时预览状态' }
-        });
-        setIcon(this.lockButton, 'lock');
-        this.lockButton.setAttribute('aria-label', '开启实时预览状态');
-        this.lockButton.addEventListener('click', () => this.togglePreviewLock());
+
 
 
 
@@ -343,7 +335,7 @@ export class MPView extends ItemView {
     }
 
     private updateControlsState(enabled: boolean) {
-        this.lockButton.disabled = !enabled;
+
         // 更新所有自定义选择器的禁用状态
         const templateSelect = this.customTemplateSelect.querySelector('.custom-select');
         const fontSelect = this.customFontSelect.querySelector('.custom-select');
@@ -379,25 +371,14 @@ export class MPView extends ItemView {
         }
 
         this.updateControlsState(true);
-        this.isPreviewLocked = false;
-        setIcon(this.lockButton, 'unlock');
+
         await this.updatePreview();
     }
 
-    private async togglePreviewLock() {
-        this.isPreviewLocked = !this.isPreviewLocked;
-        const lockIcon = this.isPreviewLocked ? 'lock' : 'unlock';
-        const lockStatus = this.isPreviewLocked ? '开启实时预览状态' : '关闭实时预览状态';
-        setIcon(this.lockButton, lockIcon);
-        this.lockButton.setAttribute('aria-label', lockStatus);
 
-        if (!this.isPreviewLocked) {
-            await this.updatePreview();
-        }
-    }
 
     async onFileModify(file: TFile) {
-        if (file === this.currentFile && !this.isPreviewLocked) {
+        if (file === this.currentFile) {
             if (this.updateTimer) {
                 clearTimeout(this.updateTimer);
             }
