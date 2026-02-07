@@ -247,23 +247,6 @@ export class MPView extends ItemView {
         const bottomBar = container.createEl('div', { cls: 'mp-bottom-bar' });
         // 创建中间控件容器
         const bottomControlsGroup = bottomBar.createEl('div', { cls: 'mp-controls-group' });
-        // 帮助按钮
-        const helpButton = bottomControlsGroup.createEl('button', {
-            cls: 'mp-help-button',
-            attr: { 'aria-label': '使用指南' }
-        });
-        setIcon(helpButton, 'help');
-        // 帮助提示框
-        bottomControlsGroup.createEl('div', {
-            cls: 'mp-help-tooltip',
-            text: `使用指南：
-                1. 选择喜欢的主题模板
-                2. 调整字体和字号
-                3. 实时预览效果
-                4. 点击【复制按钮】即可粘贴到公众号
-                5. 编辑实时查看效果，点🔓关闭实时刷新`
-        });
-
 
 
         // 导出按钮

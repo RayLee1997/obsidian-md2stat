@@ -2,7 +2,7 @@
 .obsidian-md2stat-area {
     padding: 10px 20px 20px 20px;
     margin: 10px;
-    height: calc(100% - 180px);
+    min-height: 0;
     overflow-y: auto;
     background: #fcfcfc;
     flex: 1;
@@ -18,7 +18,8 @@
 }
 
 /* 列表 */
-.mp-content-section ul,ol {
+.mp-content-section ul,
+ol {
     margin: 0;
     padding: 0;
 }
@@ -95,4 +96,3 @@
     color: var(--text-muted);
     font-size: 16px;
 }
-

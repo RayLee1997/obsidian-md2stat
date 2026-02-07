@@ -18,15 +18,35 @@ export class ExportManager {
             // 显示加载提示
             new Notice('正在生成图片...');
 
-            // 保存原始样式
+            // 保存元素原始样式
             const originalOverflow = element.style.overflow;
             const originalHeight = element.style.height;
             const originalMaxHeight = element.style.maxHeight;
+            const originalFlex = element.style.flex;
+            const originalMinHeight = element.style.minHeight;
+
+            // 保存父容器原始样式（flex 布局会约束子元素高度）
+            const parent = element.parentElement;
+            const parentOriginalStyles = parent ? {
+                display: parent.style.display,
+                flexDirection: parent.style.flexDirection,
+                height: parent.style.height,
+                overflow: parent.style.overflow,
+            } : null;
 
             // 临时修改样式以显示完整内容
             element.style.overflow = 'visible';
             element.style.height = 'auto';
             element.style.maxHeight = 'none';
+            element.style.flex = 'none';
+            element.style.minHeight = 'auto';
+
+            // 临时移除父容器的 flex 约束
+            if (parent) {
+                parent.style.display = 'block';
+                parent.style.height = 'auto';
+                parent.style.overflow = 'visible';
+            }
 
             try {
                 // 导出为 PNG
@@ -46,10 +66,20 @@ export class ExportManager {
                     }
                 });
 
-                // 恢复原始样式
+                // 恢复元素原始样式
                 element.style.overflow = originalOverflow;
                 element.style.height = originalHeight;
                 element.style.maxHeight = originalMaxHeight;
+                element.style.flex = originalFlex;
+                element.style.minHeight = originalMinHeight;
+
+                // 恢复父容器原始样式
+                if (parent && parentOriginalStyles) {
+                    parent.style.display = parentOriginalStyles.display;
+                    parent.style.flexDirection = parentOriginalStyles.flexDirection;
+                    parent.style.height = parentOriginalStyles.height;
+                    parent.style.overflow = parentOriginalStyles.overflow;
+                }
 
                 // 触发下载
                 const link = document.createElement('a');
@@ -65,6 +95,15 @@ export class ExportManager {
                 element.style.overflow = originalOverflow;
                 element.style.height = originalHeight;
                 element.style.maxHeight = originalMaxHeight;
+                element.style.flex = originalFlex;
+                element.style.minHeight = originalMinHeight;
+
+                if (parent && parentOriginalStyles) {
+                    parent.style.display = parentOriginalStyles.display;
+                    parent.style.flexDirection = parentOriginalStyles.flexDirection;
+                    parent.style.height = parentOriginalStyles.height;
+                    parent.style.overflow = parentOriginalStyles.overflow;
+                }
                 throw error;
             }
         } catch (error) {
@@ -94,15 +133,35 @@ export class ExportManager {
 
             new Notice('正在生成图片...');
 
-            // 保存原始样式
+            // 保存元素原始样式
             const originalOverflow = element.style.overflow;
             const originalHeight = element.style.height;
             const originalMaxHeight = element.style.maxHeight;
+            const originalFlex = element.style.flex;
+            const originalMinHeight = element.style.minHeight;
+
+            // 保存父容器原始样式
+            const parent = element.parentElement;
+            const parentOriginalStyles = parent ? {
+                display: parent.style.display,
+                flexDirection: parent.style.flexDirection,
+                height: parent.style.height,
+                overflow: parent.style.overflow,
+            } : null;
 
             // 临时修改样式以显示完整内容
             element.style.overflow = 'visible';
             element.style.height = 'auto';
             element.style.maxHeight = 'none';
+            element.style.flex = 'none';
+            element.style.minHeight = 'auto';
+
+            // 临时移除父容器的 flex 约束
+            if (parent) {
+                parent.style.display = 'block';
+                parent.style.height = 'auto';
+                parent.style.overflow = 'visible';
+            }
 
             try {
                 const dataUrl = await htmlToImage.toJpeg(element, {
@@ -119,10 +178,20 @@ export class ExportManager {
                     }
                 });
 
-                // 恢复原始样式
+                // 恢复元素原始样式
                 element.style.overflow = originalOverflow;
                 element.style.height = originalHeight;
                 element.style.maxHeight = originalMaxHeight;
+                element.style.flex = originalFlex;
+                element.style.minHeight = originalMinHeight;
+
+                // 恢复父容器原始样式
+                if (parent && parentOriginalStyles) {
+                    parent.style.display = parentOriginalStyles.display;
+                    parent.style.flexDirection = parentOriginalStyles.flexDirection;
+                    parent.style.height = parentOriginalStyles.height;
+                    parent.style.overflow = parentOriginalStyles.overflow;
+                }
 
                 const link = document.createElement('a');
                 link.download = filename;
@@ -137,6 +206,15 @@ export class ExportManager {
                 element.style.overflow = originalOverflow;
                 element.style.height = originalHeight;
                 element.style.maxHeight = originalMaxHeight;
+                element.style.flex = originalFlex;
+                element.style.minHeight = originalMinHeight;
+
+                if (parent && parentOriginalStyles) {
+                    parent.style.display = parentOriginalStyles.display;
+                    parent.style.flexDirection = parentOriginalStyles.flexDirection;
+                    parent.style.height = parentOriginalStyles.height;
+                    parent.style.overflow = parentOriginalStyles.overflow;
+                }
                 throw error;
             }
         } catch (error) {
